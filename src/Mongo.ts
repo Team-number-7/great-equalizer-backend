@@ -8,4 +8,15 @@ export default class Mongo {
   constructor() {
     this.client = new MongoClient(MONGO_URI);
   }
+
+  async connect() {
+    try {
+      await this.client.connect();
+      await this.client.db('admin').command({ ping: 1 });
+      console.log('Connected successfully to server');
+    } catch (error) {
+      console.error(error);
+      await this.client.close();
+    }
+  }
 }

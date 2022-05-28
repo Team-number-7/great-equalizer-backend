@@ -19,7 +19,7 @@ describe('Mongo', () => {
     test('succesful connection', async () => {
       // Arrange
       const mongo = new Mongo();
-      const expectedDb: string = 'admin';
+      const expectedDbName: string = 'admin';
       const expectedCommand = { ping: 1 };
       const mockCommand = jest.fn();
       mongo.client.db = jest
@@ -31,7 +31,7 @@ describe('Mongo', () => {
 
       // Assert
       expect(mongo.client.connect).toBeCalled();
-      expect(mongo.client.db).toBeCalledWith(expectedDb);
+      expect(mongo.client.db).toBeCalledWith(expectedDbName);
       expect(mockCommand).toBeCalledWith(expectedCommand);
     });
     test('connect throws exception', async () => {

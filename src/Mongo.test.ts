@@ -1,4 +1,6 @@
-import { MongoClient as MockMongoClient } from 'mongodb';
+import {
+  Document, MongoClient as MockMongoClient, ObjectId, WithId,
+} from 'mongodb';
 import Mongo, { MONGO_URI, DB_NAME, TRANSACTIONS_COLLECTION } from './Mongo';
 
 jest.mock('mongodb');
@@ -139,6 +141,74 @@ describe('Mongo', () => {
       expect(mockCollection).toBeCalledWith(expectedCollectionName);
       expect(mockInsertOne).toBeCalledWith(expectedDocument);
       expect(actualTransactionId).toEqual(expectedTransactionId);
+    });
+  });
+  describe('getTransactions', () => {
+    test('happy path', async () => {
+      // Assert
+      const mongo = new Mongo();
+      const expectedDbName = DB_NAME;
+      const expectedCollectionName = TRANSACTIONS_COLLECTION;
+      const expectedTransaction1: WithId<Document> = {
+        _id: new ObjectId('1'),
+        date: new Date('2022-05-01'),
+        name: 'Пиросмани',
+        value: 70,
+      };
+      const expectedTransaction2: WithId<Document> = {
+        _id: new ObjectId('2'),
+        date: new Date('2007-01-01'),
+        name: 'Пиросмания',
+        value: 69,
+      };
+      const expectedTransactions = [expectedTransaction1, expectedTransaction2];
+      const mockToArray = jest.fn(async () => expectedTransactions);
+      const mockFind = jest
+        .fn()
+        .mockReturnValue({ toArray: mockToArray });
+      const mockCollection = jest
+        .fn()
+        .mockReturnValue({ find: mockFind });
+      mongo.client.db = jest
+        .fn()
+        .mockReturnValue({ collection: mockCollection });
+
+      // Act
+      const actualTransactions: Array<WithId<Document>> | null = await mongo.getTransactions();
+
+      // Arrange
+      expect(mongo.client.db).toBeCalledWith(expectedDbName);
+      expect(mockCollection).toBeCalledWith(expectedCollectionName);
+      expect(mockFind).toBeCalled();
+      expect(actualTransactions).toEqual(expectedTransactions);
+    });
+    test('toArray throws exception', async () => {
+      // Assert
+      const mongo = new Mongo();
+      const expectedDbName = DB_NAME;
+      const expectedCollectionName = TRANSACTIONS_COLLECTION;
+      const expectedTransactions = null;
+      const mockToArray = jest.fn(async () => {
+        throw new Error('Try again');
+      });
+      const mockFind = jest
+        .fn()
+        .mockReturnValue({ toArray: mockToArray });
+      const mockCollection = jest
+        .fn()
+        .mockReturnValue({ find: mockFind });
+      mongo.client.db = jest
+        .fn()
+        .mockReturnValue({ collection: mockCollection });
+
+      // Act
+      const actualTransactions: Array<WithId<Document>> | null = await mongo.getTransactions();
+
+      // Arrange
+      expect(mongo.client.db).toBeCalledWith(expectedDbName);
+      expect(mockCollection).toBeCalledWith(expectedCollectionName);
+      expect(mockFind).toBeCalled();
+      expect(actualTransactions).toEqual(expectedTransactions);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, WithId, Document } from 'mongodb';
 
 export const MONGO_URI = 'mongodb://root:example@localhost:27017/?authMechanism=DEFAULT';
 export const DB_NAME = 'great-equalizer';
@@ -40,7 +40,21 @@ export default class Mongo {
       const result = await collection.insertOne(tranasactionDocument);
       return result.insertedId.toString();
     } catch (error) {
-      console.error('insertOne exception');
+      console.error(error);
+    }
+    return null;
+  }
+
+  async getTransactions(): Promise<Array<WithId<Document>> | null> {
+    const cursor = this.client
+      .db(DB_NAME)
+      .collection(TRANSACTIONS_COLLECTION)
+      .find();
+    try {
+      const result = await cursor.toArray();
+      return result;
+    } catch (error) {
+      console.error(error);
     }
     return null;
   }

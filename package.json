@@ -33,7 +33,7 @@
     "test": "jest",
     "build": "tsc",
     "start": "node dist/scr/index.js",
-    "dev": "concurrently 'tsc --watch' 'nodemon -q dist/src/index.js'"
+    "dev": "concurrently \"tsc --watch\" \"nodemon -q dist/src/index.js\""
   },
   "repository": {
     "type": "git",

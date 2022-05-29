@@ -8,11 +8,14 @@ export default class TransactionController {
     this.mongo = mongo;
   }
 
-  createTransaction(req: Request, res: Response) {
+  async createTransaction(req: Request, res: Response) {
     const date: string = req.body.date as string;
     const name: string = req.body.name as string;
     const value: string = req.body.value as string;
-    this.mongo.createTransaction(new Date(date), name, parseInt(value, 10));
-    res.send('Transaction added');
+    if (await this.mongo.createTransaction(new Date(date), name, parseInt(value, 10))) {
+      res.send('Transaction added');
+    } else {
+      res.sendStatus(502);
+    }
   }
 }

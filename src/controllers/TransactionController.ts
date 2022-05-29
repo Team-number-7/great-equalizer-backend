@@ -18,4 +18,13 @@ export default class TransactionController {
       res.sendStatus(502);
     }
   }
+
+  async getTransactions(req: Request, res: Response) {
+    const transactions = await this.mongo.getTransactions();
+    if (transactions) {
+      res.json(transactions);
+    } else {
+      res.sendStatus(502);
+    }
+  }
 }

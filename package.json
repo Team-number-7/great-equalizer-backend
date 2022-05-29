@@ -33,7 +33,10 @@
     "test": "jest",
     "build": "tsc",
     "start": "node dist/scr/index.js",
-    "dev": "concurrently \"tsc --watch\" \"nodemon -q dist/src/index.js\""
+    "dev": "concurrently \"tsc --watch\" \"nodemon -q dist/src/index.js\"",
+    "lint": "npm run eslint",
+    "eslint": "eslint . --ext .ts ",
+    "eslint:fix": "eslint . --ext .ts --fix "
   },
   "repository": {
     "type": "git",

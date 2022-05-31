@@ -1,10 +1,11 @@
 import { MongoClient, WithId, Document } from 'mongodb';
+import { IMongo } from './interfaces';
 
 export const MONGO_URI = 'mongodb://root:example@localhost:27017/?authMechanism=DEFAULT';
 export const DB_NAME = 'great-equalizer';
 export const TRANSACTIONS_COLLECTION = 'transactions';
 
-export default class Mongo {
+class Mongo implements IMongo {
   client: MongoClient;
 
   constructor() {
@@ -59,3 +60,5 @@ export default class Mongo {
     return null;
   }
 }
+
+export default Mongo;

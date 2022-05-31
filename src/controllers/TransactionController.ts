@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import Mongo from '../Mongo';
+import { IMongo } from '../interfaces';
 
 export default class TransactionController {
-  mongo: Mongo;
+  mongo: IMongo;
 
-  constructor(mongo: Mongo) {
+  constructor(mongo: IMongo) {
     this.mongo = mongo;
   }
 

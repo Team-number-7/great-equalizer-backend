@@ -28,5 +28,5 @@ describe('createInitialise', () => {
     // Assert
     expect(mockMongo.connect).toBeCalled();
     expect(mockMongo.seed).toBeCalled();
-  })
-})
+  });
+});

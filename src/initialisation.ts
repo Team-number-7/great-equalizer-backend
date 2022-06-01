@@ -7,6 +7,6 @@ async function initialise1(mongo: IMongo) {
   await mongo.seed();
 }
 
-const initialise = bindDependencies(initialise1, [TYPES.IMongo]);
+// const initialise = bindDependencies(initialise1, [TYPES.IMongo]);
 
-export default initialise;
+export default () => bindDependencies(initialise1, [TYPES.IMongo]);

@@ -1,22 +1,16 @@
-import container, { mongoContainer } from './inversify.config';
+import container, { mongoContainerModule } from './inversify.config';
 import { IMongo } from './interfaces';
 import TYPES from './types';
-import initialisation from './initialisation';
-// import { Container } from 'inversify';
+import createInitialise from './createInitialise';
 
-// jest.mock('./Mongo');
-
-// let container: Container;
-
-describe('initialisation', () => {
+describe('createInitialise', () => {
   beforeEach(() => {
-    // container = new Container();
-    container.load(mongoContainer);
+    container.load(mongoContainerModule);
   });
 
-  // afterEach(() => {
-  //   container = null;
-  // });
+  afterEach(() => {
+    container.unload(mongoContainerModule);
+  });
 
   test('happy path', async () => {
     // Arrange
@@ -26,7 +20,7 @@ describe('initialisation', () => {
     const mockMongo = container.get<IMongo>(TYPES.IMongo);
     mockMongo.connect = jest.fn();
     mockMongo.seed = jest.fn();
-    const initialise = initialisation();
+    const initialise = createInitialise();
 
     // Act
     await initialise();

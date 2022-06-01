@@ -1,6 +1,6 @@
-import container, { mongoContainer } from '../inversify.config';
+import container, { mongoContainerModule } from '../inversify.config';
 
-// container.load(mongoContainer);
+container.load(mongoContainerModule);
 
 function bindDependencies(func: Function, dependencies: Array<any>) {
   const injections = dependencies.map((dependency: any) => container.get(dependency));

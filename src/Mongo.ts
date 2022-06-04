@@ -10,7 +10,7 @@ class Mongo implements IMongo {
 
   public static instance: Mongo;
 
-  constructor() {
+  private constructor() {
     this.client = new MongoClient(MONGO_URI);
   }
 

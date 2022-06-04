@@ -11,7 +11,7 @@ const container = new Container();
 decorate(injectable(), Mongo);
 
 export const mongoContainerModule = new ContainerModule((bind: Bind) => {
-  bind<IMongo>(TYPES.IMongo).to(Mongo);
+  bind<IMongo>(TYPES.IMongo).toAutoFactory(Mongo);
 });
 
 export default container;

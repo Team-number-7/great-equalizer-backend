@@ -4,12 +4,12 @@ import TransactionController from './TransactionController';
 import MockMongo from '../Mongo';
 
 jest.mock('mongodb');
-jest.mock('../Mongo');
+// jest.mock('../Mongo');
 
 describe('TransactionsController', () => {
   test('constructor', () => {
     // Arrange
-    const mockMongo = new MockMongo();
+    const mockMongo = MockMongo.getInstance();
 
     // Act
     const actualTransactionController = new TransactionController(mockMongo);
@@ -20,7 +20,7 @@ describe('TransactionsController', () => {
   describe('createTransaction', () => {
     test('happy path', async () => {
       // Arrange
-      const mockMongo = new MockMongo();
+      const mockMongo = MockMongo.getInstance();
       const expectedTransactionId = '1';
       mockMongo.createTransaction = jest
         .fn(async () => expectedTransactionId);
@@ -57,7 +57,7 @@ describe('TransactionsController', () => {
     });
     test('mongo.createTransaction returnes null', async () => {
       // Arrange
-      const mockMongo = new MockMongo();
+      const mockMongo = MockMongo.getInstance();
       mockMongo.createTransaction = jest
         .fn(async () => null);
       const transactionController = new TransactionController(mockMongo);
@@ -98,7 +98,7 @@ describe('TransactionsController', () => {
   describe('getTransactions', () => {
     test('happy path', async () => {
       // Arrange
-      const mockMongo = new MockMongo();
+      const mockMongo = MockMongo.getInstance();
       const transactionController = new TransactionController(mockMongo);
       const expectedTransaction1: WithId<Document> = {
         _id: new ObjectId('1'),
@@ -130,7 +130,7 @@ describe('TransactionsController', () => {
     });
     test('mongo.getTransaction returnes null', async () => {
       // Arrange
-      const mockMongo = new MockMongo();
+      const mockMongo = MockMongo.getInstance();
       const transactionController = new TransactionController(mockMongo);
       const expectedStatusCode = 502;
       mockMongo.getTransactions = jest

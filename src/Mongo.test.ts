@@ -11,7 +11,7 @@ describe('Mongo', () => {
     const expectedUri = MONGO_URI;
 
     // Act
-    const actualMongo = new Mongo();
+    const actualMongo = Mongo.getInstance();
 
     // Assert
     expect(MockMongoClient).toBeCalledWith(expectedUri);
@@ -31,7 +31,7 @@ describe('Mongo', () => {
   describe('connect', () => {
     test('succesful connection', async () => {
       // Arrange
-      const mongo = new Mongo();
+      const mongo = Mongo.getInstance();
       const expectedDbName: string = 'admin';
       const expectedCommand = { ping: 1 };
       const mockCommand = jest.fn();
@@ -49,7 +49,7 @@ describe('Mongo', () => {
     });
     test('connect throws exception', async () => {
       // Arrange
-      const mongo = new Mongo();
+      const mongo = Mongo.getInstance();
       mongo.client.connect = jest.fn(() => {
         throw new Error();
       });
@@ -65,7 +65,7 @@ describe('Mongo', () => {
   describe('seed', () => {
     test('succesfull seed', async () => {
       // Arrange
-      const mongo = new Mongo();
+      const mongo = Mongo.getInstance();
       const expectedDbName = DB_NAME;
       const expectedCollectionName = TRANSACTIONS_COLLECTION;
       const mockCreateCollection = jest.fn();
@@ -84,7 +84,7 @@ describe('Mongo', () => {
   describe('createTransaction', () => {
     test('happy path', async () => {
       // Arrange
-      const mongo = new Mongo();
+      const mongo = Mongo.getInstance();
       const expectedDbName = DB_NAME;
       const expectedCollectionName = TRANSACTIONS_COLLECTION;
       const expectedDate = new Date('2022-05-01');
@@ -122,7 +122,7 @@ describe('Mongo', () => {
     });
     test('insertOne throws exception', async () => {
       // Arrange
-      const mongo = new Mongo();
+      const mongo = Mongo.getInstance();
       const expectedDbName = DB_NAME;
       const expectedCollectionName = TRANSACTIONS_COLLECTION;
       const expectedDate = new Date('2022-05-01');
@@ -157,7 +157,7 @@ describe('Mongo', () => {
   describe('getTransactions', () => {
     test('happy path', async () => {
       // Assert
-      const mongo = new Mongo();
+      const mongo = Mongo.getInstance();
       const expectedDbName = DB_NAME;
       const expectedCollectionName = TRANSACTIONS_COLLECTION;
       const expectedTransaction1: WithId<Document> = {
@@ -195,7 +195,7 @@ describe('Mongo', () => {
     });
     test('toArray throws exception', async () => {
       // Assert
-      const mongo = new Mongo();
+      const mongo = Mongo.getInstance();
       const expectedDbName = DB_NAME;
       const expectedCollectionName = TRANSACTIONS_COLLECTION;
       const expectedTransactions = null;

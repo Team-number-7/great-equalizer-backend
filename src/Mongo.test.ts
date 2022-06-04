@@ -17,6 +17,17 @@ describe('Mongo', () => {
     expect(MockMongoClient).toBeCalledWith(expectedUri);
     expect(actualMongo.client).toBeInstanceOf(MockMongoClient);
   });
+
+  test('getInstance', () => {
+    // Arrange
+    // Act
+    const actualFirstMongoInstance = Mongo.getInstance();
+    const actualSecondMongoInstance = Mongo.getInstance();
+
+    // Assert
+    expect(actualFirstMongoInstance).toBeInstanceOf(Mongo);
+    expect(actualFirstMongoInstance).toEqual(actualSecondMongoInstance);
+  });
   describe('connect', () => {
     test('succesful connection', async () => {
       // Arrange

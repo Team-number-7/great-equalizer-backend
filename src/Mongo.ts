@@ -8,8 +8,17 @@ export const TRANSACTIONS_COLLECTION = 'transactions';
 class Mongo implements IMongo {
   client: MongoClient;
 
+  public static instance: Mongo;
+
   constructor() {
     this.client = new MongoClient(MONGO_URI);
+  }
+
+  public static getInstance(): IMongo {
+    if (!Mongo.instance) {
+      Mongo.instance = new Mongo();
+    }
+    return Mongo.instance;
   }
 
   async connect() {

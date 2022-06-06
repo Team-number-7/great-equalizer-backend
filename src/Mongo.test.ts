@@ -6,7 +6,7 @@ import Mongo, { MONGO_URI, DB_NAME, TRANSACTIONS_COLLECTION } from './Mongo';
 jest.mock('mongodb');
 
 describe('Mongo', () => {
-  test('constructor', () => {
+  test('getInstance', () => {
     // Arrange
     const expectedUri = MONGO_URI;
 
@@ -18,15 +18,15 @@ describe('Mongo', () => {
     expect(actualMongo.client).toBeInstanceOf(MockMongoClient);
   });
 
-  test('getInstance', () => {
+  test('getInstance Singletone', () => {
     // Arrange
+    const expectedMongoInstance = Mongo.getInstance();
     // Act
-    const actualFirstMongoInstance = Mongo.getInstance();
-    const actualSecondMongoInstance = Mongo.getInstance();
+    const actualMongoInstance = Mongo.getInstance();
 
     // Assert
-    expect(actualFirstMongoInstance).toBeInstanceOf(Mongo);
-    expect(actualFirstMongoInstance).toEqual(actualSecondMongoInstance);
+    expect(actualMongoInstance).toBeInstanceOf(Mongo);
+    expect(actualMongoInstance).toBe(expectedMongoInstance);
   });
   describe('connect', () => {
     test('succesful connection', async () => {

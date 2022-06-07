@@ -18,8 +18,8 @@ export default class Server {
     const app = container.get<Application>(TYPES.Application);
     const transactionController = container
       .get<ITransactionController>(TYPES.ITransactionController);
-    app.get(TRANSACTIONS_ENDPOINT, transactionController.getTransactions);
-    app.post(TRANSACTIONS_ENDPOINT, transactionController.createTransaction);
+    app.get(TRANSACTIONS_ENDPOINT, transactionController.getTransactions.bind(transactionController));
+    app.post(TRANSACTIONS_ENDPOINT, transactionController.createTransaction.bind(transactionController));
   }
 
   static listen() {

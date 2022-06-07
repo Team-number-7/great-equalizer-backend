@@ -5,7 +5,7 @@ import container, {
   transactionControllerContainerModule,
 } from './inversify.config';
 import TYPES from './types';
-import Server, { TRANSACTIONS_ENDPOINT } from './Server';
+import Server, { PORT, TRANSACTIONS_ENDPOINT } from './Server';
 import { IMongo, ITransactionController } from './interfaces';
 
 jest.mock('body-parser', () => ({
@@ -65,18 +65,32 @@ describe('server', () => {
     mockApp.get = jest.fn();
     mockApp.post = jest.fn();
 
+    const boundGetTransactions = jest.fn();
+    const boundCreateTransaction = jest.fn();
+    mockTransactionController.getTransactions = async () => {};
+
+    mockTransactionController.getTransactions.bind = jest
+      .fn()
+      .mockReturnValue(boundGetTransactions);
+    mockTransactionController.createTransaction = async () => {};
+    mockTransactionController.createTransaction.bind = jest
+      .fn()
+      .mockReturnValue(boundCreateTransaction);
+
     // Act
     Server.configureEndpoints();
 
     // Assert
     expect(mockApp.get).toBeCalledWith(
       expectedTransactionsEndpoint,
-      mockTransactionController.getTransactions,
+      boundGetTransactions,
     );
     expect(mockApp.post).toBeCalledWith(
       expectedTransactionsEndpoint,
-      mockTransactionController.createTransaction,
+      boundCreateTransaction,
     );
+    expect(mockTransactionController.getTransactions.bind).toBeCalledWith(mockTransactionController);
+    expect(mockTransactionController.createTransaction.bind).toBeCalledWith(mockTransactionController);
   });
   test('listen', () => {
     // Arrange
@@ -84,7 +98,7 @@ describe('server', () => {
     container.unbind(TYPES.Application);
     container.bind<Application>(TYPES.Application).toConstantValue(mockApp);
 
-    const expectedPortNumber = 3000;
+    const expectedPortNumber = PORT;
     mockApp.listen = jest.fn();
     // Act
     Server.listen();

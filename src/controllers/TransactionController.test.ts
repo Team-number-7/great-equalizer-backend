@@ -15,7 +15,7 @@ describe('TransactionsController', () => {
     const actualTransactionController = new TransactionController(mockMongo);
 
     // Assert
-    expect(actualTransactionController.mongo).toEqual(mockMongo);
+    expect(actualTransactionController.mongo).toBe(mockMongo);
   });
   describe('createTransaction', () => {
     test('happy path', async () => {
@@ -55,7 +55,7 @@ describe('TransactionsController', () => {
       );
       expect(mockResponse.send).toBeCalledWith(expectedResponseMessage);
     });
-    test('mongo.createTransaction returnes null', async () => {
+    test('mongo.createTransaction returns null', async () => {
       // Arrange
       const mockMongo = MockMongo.getInstance();
       mockMongo.createTransaction = jest

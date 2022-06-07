@@ -1,12 +1,12 @@
 import mockBodyParser from 'body-parser';
 import mockExpress, { Application } from 'express';
 import container, {
-  expressContainerModule,
+  expressContainerModule, mongoContainerModule,
   transactionControllerContainerModule,
 } from './inversify.config';
 import TYPES from './types';
 import Server, { TRANSACTIONS_ENDPOINT } from './Server';
-import { ITransactionController } from './interfaces';
+import { IMongo, ITransactionController } from './interfaces';
 
 jest.mock('body-parser', () => ({
   urlencoded: jest.fn(),
@@ -15,11 +15,19 @@ jest.mock('body-parser', () => ({
 
 describe('server', () => {
   beforeEach(() => {
-    container.load(expressContainerModule, transactionControllerContainerModule);
+    container.load(
+      mongoContainerModule,
+      expressContainerModule,
+      transactionControllerContainerModule,
+    );
   });
 
   afterEach(() => {
-    container.unload(expressContainerModule, transactionControllerContainerModule);
+    container.unload(
+      mongoContainerModule,
+      expressContainerModule,
+      transactionControllerContainerModule,
+    );
   });
 
   test('initMiddleware', () => {
@@ -69,5 +77,34 @@ describe('server', () => {
       expectedTransactionsEndpoint,
       mockTransactionController.createTransaction,
     );
+  });
+  test('listen', () => {
+    // Arrange
+    const mockApp = mockExpress();
+    container.unbind(TYPES.Application);
+    container.bind<Application>(TYPES.Application).toConstantValue(mockApp);
+
+    const expectedPortNumber = 3000;
+    mockApp.listen = jest.fn();
+    // Act
+    Server.listen();
+    // Assert
+    expect(mockApp.listen).toBeCalledWith(expectedPortNumber, Server.initialise);
+  });
+  test('initialise', async () => {
+    // Arrange
+    const MockMongo = jest.fn<IMongo, any>();
+    container.unbind(TYPES.IMongo);
+    container.bind<IMongo>(TYPES.IMongo).toConstantValue(new MockMongo());
+    const mockMongo = container.get<IMongo>(TYPES.IMongo);
+    mockMongo.connect = jest.fn();
+    mockMongo.seed = jest.fn();
+
+    // Act
+    await Server.initialise();
+
+    // Assert
+    expect(mockMongo.connect).toBeCalled();
+    expect(mockMongo.seed).toBeCalled();
   });
 });

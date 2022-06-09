@@ -35,8 +35,8 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "concurrently \"tsc --watch\" \"nodemon -q dist/index.js\"",
+    "start": "set DB_HOST=mongo&& node dist/index.js",
+    "dev": "concurrently \"tsc --watch\" \"set DB_HOST=localhost&& nodemon -q dist/index.js\"",
     "lint": "npm run eslint",
     "eslint": "eslint . --ext .ts ",
     "eslint:fix": "eslint . --ext .ts --fix "

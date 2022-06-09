@@ -1,7 +1,8 @@
 import { MongoClient, WithId, Document } from 'mongodb';
 import { IMongo } from './interfaces';
 
-export const MONGO_URI = 'mongodb://root:example@mongo:27017/?authMechanism=DEFAULT';
+const DB_HOST = process.env.DB_HOST || 'localhost';
+export const MONGO_URI = `mongodb://root:example@${DB_HOST}:27017/?authMechanism=DEFAULT`;
 export const DB_NAME = 'great-equalizer';
 export const TRANSACTIONS_COLLECTION = 'transactions';
 
@@ -45,9 +46,9 @@ class Mongo implements IMongo {
 
   async createTransaction(date: Date, name: string, value: number): Promise<string | null> {
     const collection = this.client.db(DB_NAME).collection(TRANSACTIONS_COLLECTION);
-    const tranasactionDocument = { date, name, value };
+    const transactionDocument = { date, name, value };
     try {
-      const result = await collection.insertOne(tranasactionDocument);
+      const result = await collection.insertOne(transactionDocument);
       return result.insertedId.toString();
     } catch (error) {
       console.error(error);
@@ -61,8 +62,7 @@ class Mongo implements IMongo {
       .collection(TRANSACTIONS_COLLECTION)
       .find();
     try {
-      const result = await cursor.toArray();
-      return result;
+      return await cursor.toArray();
     } catch (error) {
       console.error(error);
     }

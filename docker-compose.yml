@@ -11,3 +11,8 @@ services:
       - ./db:/data/db
     ports:
       - "27017:27017"
+  web:
+    image: great-equalizer-backend:1.0.0
+    restart: always
+    ports:
+      - "3000:3000"

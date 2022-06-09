@@ -1,6 +1,7 @@
 {
   "extends": "./configs/tsconfig.base",
   "exclude": [
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    "jest.config.ts"
   ]
 }

@@ -48,7 +48,8 @@ jobs:
       - persist_to_workspace:
           root: ~/great-equalizer-backend
           paths:
-            - .
+            - node_modules
+            - dist
 
 workflows:
   # Below is the definition of your workflow.

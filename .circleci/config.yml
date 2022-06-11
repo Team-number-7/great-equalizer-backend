@@ -7,6 +7,8 @@ orbs:
   # Orbs reduce the amount of configuration required for common tasks.
   # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
   node: circleci/node@4.7
+  aws-esr: circleci/aws-ecr@8.1.2
+  aws-ecs: circleci/aws-ecs@2.3.0
 
 jobs:
   # Below is the definition of your job to build and test your app, you can rename and customize it as you want.
@@ -48,3 +50,8 @@ workflows:
             branches:
               only:
                 - main
+  deploy:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          repo: 491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend
+          tag: "${CIRCLE_SHA1}"

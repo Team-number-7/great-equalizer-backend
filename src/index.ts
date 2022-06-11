@@ -11,6 +11,7 @@ container.load(mongoContainerModule, transactionControllerContainerModule, expre
 
 Server.initMiddleware();
 Server.configureEndpoints();
+console.log(process.env.DB_HOST);
 Server.listen();
 
 console.log(process.env.DB_HOST);

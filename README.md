@@ -70,3 +70,20 @@ To start MongoDB
 ```bash
 docker compose up -d
 ```
+
+
+### Scripts
+
+``npm run dev`` - start application in development mode
+
+``npm run start`` - start application in production mode
+
+``npm run build`` - build application into `/dist` directory
+
+``npm run lint`` - run eslint
+
+``npm run eslint:fix`` - run eslint with fixing
+
+``npm run test`` - run jest
+
+

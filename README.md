@@ -1,5 +1,8 @@
 # Great Equalizer backend
 
+[![tested with jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
+[![CircleCI](https://circleci.com/gh/Team-number-7/great-equalizer-backend/tree/main.svg?style=svg)](https://circleci.com/gh/Team-number-7/great-equalizer-backend/tree/main)
+
 ## Stack
 
 - [TypeScript](https://www.typescriptlang.org/) - JavaScript with syntax for types

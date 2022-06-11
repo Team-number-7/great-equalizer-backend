@@ -36,6 +36,7 @@ jobs:
   build:
     docker:
       - image: cimg/node:16.15
+    working_directory: ~/great-equalizer-backend
     steps:
       - checkout
       - node/install-packages:
@@ -44,6 +45,10 @@ jobs:
       - run:
           name: build
           command: npm run build
+      - persist_to_workspace:
+          root: ~/great-equalizer-backend
+          paths:
+            - .
 
 workflows:
   # Below is the definition of your workflow.
@@ -60,15 +65,17 @@ workflows:
       - build:
           filters:
             tags:
-              only: /^v.\d+.\d+.\d+$/
+              only: /^\d+.\d+.\d+$/
             branches:
               ignore: /.*/
           requires:
             - test
       - aws-ecr/build-and-push-image:
+          attach-workspace: true
+          workspace-root: ~/great-equalizer-backend
           filters:
             tags:
-              only: /^v.\d+.\d+.\d+$/
+              only: /^\d+.\d+.\d+$/
             branches:
               ignore: /.*/
           requires:

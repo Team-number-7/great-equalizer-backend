@@ -43,7 +43,7 @@ jobs:
           override-ci-command: npm install --omit=dev
       - run:
           name: env
-          command: echo DB_HOST=$DB_HOST > .env
+          command: echo DB_HOST=$DB_HOST > .env.production
       - run:
           name: build
           command: npm run build

@@ -8,7 +8,6 @@ orbs:
   # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
   node: circleci/node@4.7
   aws-esr: circleci/aws-ecr@8.1.2
-  aws-ecs: circleci/aws-ecs@2.3.0
 
 jobs:
   # Below is the definition of your job to build and test your app, you can rename and customize it as you want.
@@ -39,7 +38,7 @@ jobs:
           command: npm run build
 
 workflows:
-  # Bbelow is the definition of your workflow.
+  # Below is the definition of your workflow.
   # Inside the workflow, you provide the jobs you want to run, e.g this workflow runs the build-and-test job above.
   # CircleCI will run this workflow on every commit.
   # For more details on extending your workflow, see the configuration docs: https://circleci.com/docs/2.0/configuration-reference/#workflows

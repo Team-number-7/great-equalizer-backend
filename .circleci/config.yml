@@ -72,7 +72,7 @@ workflows:
             - test
       - aws-ecr/build-and-push-image:
           attach-workspace: true
-          workspace-root: ~/great-equalizer-backend
+          workspace-root: ~/
           filters:
             tags:
               only: /^\d+.\d+.\d+$/

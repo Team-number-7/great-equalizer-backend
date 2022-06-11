@@ -59,11 +59,20 @@ workflows:
                 - main
       - build:
           filters:
+            branches:
+              only:
+                - main
             tags:
               only: /^v.\d+.\d+.\d+$/
           requires:
             - test
       - aws-ecr/build-and-push-image:
+          filters:
+            branches:
+              only:
+                - main
+            tags:
+              only: /^v.\d+.\d+.\d+$/
           requires:
             - build
           repo: great-equalizer-backend

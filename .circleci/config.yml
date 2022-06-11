@@ -36,7 +36,6 @@ jobs:
   build:
     docker:
       - image: cimg/node:16.15
-    working_directory: ~/great-equalizer-backend
     steps:
       - checkout
       - node/install-packages:
@@ -46,10 +45,8 @@ jobs:
           name: build
           command: npm run build
       - persist_to_workspace:
-          root: ~/great-equalizer-backend
-          paths:
-            - node_modules
-            - dist
+          root: ~/
+          paths: project
 
 workflows:
   # Below is the definition of your workflow.

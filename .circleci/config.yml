@@ -83,4 +83,4 @@ workflows:
           requires:
             - build
           repo: great-equalizer-backend
-          tag: "${CIRCLE_SHA1}"
+          tag: "${CIRCLE_TAG}"

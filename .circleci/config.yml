@@ -52,5 +52,5 @@ workflows:
   deploy:
     jobs:
       - aws-ecr/build-and-push-image:
-          repo: 491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend
+          repo: great-equalizer-backend
           tag: "${CIRCLE_SHA1}"

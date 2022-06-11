@@ -1,7 +1,8 @@
 import { MongoClient, WithId, Document } from 'mongodb';
 import { IMongo } from './interfaces';
+import globals from './globals';
 
-const DB_HOST = process.env.DB_HOST || 'localhost';
+const DB_HOST = globals.DB_HOST || 'localhost';
 console.log(process.env.DB_HOST, DB_HOST);
 export const MONGO_URI = `mongodb://root:example@${DB_HOST}:27017/?authMechanism=DEFAULT`;
 export const DB_NAME = 'great-equalizer';

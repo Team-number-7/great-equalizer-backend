@@ -8,6 +8,7 @@ orbs:
   # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
   node: circleci/node@4.7
   aws-ecr: circleci/aws-ecr@8.1.2
+  aws-ecs: circleci/aws-ecs@2.3.0
 
 jobs:
   # Below is the definition of your job to build and test your app, you can rename and customize it as you want.
@@ -85,3 +86,14 @@ workflows:
             - build
           repo: great-equalizer-backend
           tag: "${CIRCLE_TAG}"
+      - aws-ecs/deploy-service-update:
+          cluster-name: 'ge-backend-fargate'
+          container-image-name-updates: 'container=web,image-and-tag=491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:${CIRCLE_TAG}'
+          family: 'ge-backend'
+          requires:
+            - aws-ecr/build-and-push-image
+          filters:
+            tags:
+              only: /^\d+.\d+.\d+$/
+            branches:
+              ignore: /.*/

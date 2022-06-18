@@ -5,13 +5,16 @@ import container, {
   transactionControllerContainerModule,
 } from './inversify.config';
 import TYPES from './types';
-import Server, { PORT, TRANSACTIONS_ENDPOINT } from './Server';
+import Server, { PORT, TRANSACTIONS_ENDPOINT, HEALTHCHECK_ENDPOINT } from './Server';
 import { IMongo, ITransactionController } from './interfaces';
+import MockHealthcheckController from './controllers/HealthcheckController';
 
 jest.mock('body-parser', () => ({
   urlencoded: jest.fn(),
   json: jest.fn(),
 }));
+
+jest.mock('./controllers/HealthcheckController');
 
 describe('server', () => {
   beforeEach(() => {
@@ -55,7 +58,10 @@ describe('server', () => {
     container.bind<Application>(TYPES.Application).toConstantValue(mockApp);
 
     const expectedTransactionsEndpoint = TRANSACTIONS_ENDPOINT;
+    const expectedHealthcheckEndpoint = HEALTHCHECK_ENDPOINT;
+
     const MockTransactionController = jest.fn<ITransactionController, any>();
+
     container.unbind(TYPES.ITransactionController);
     container.bind<ITransactionController>(TYPES.ITransactionController)
       .toConstantValue(new MockTransactionController());
@@ -91,6 +97,7 @@ describe('server', () => {
     );
     expect(mockTransactionController.getTransactions.bind).toBeCalledWith(mockTransactionController);
     expect(mockTransactionController.createTransaction.bind).toBeCalledWith(mockTransactionController);
+    expect(mockApp.get).toBeCalledWith(expectedHealthcheckEndpoint, MockHealthcheckController.healthcheck);
   });
   test('listen', () => {
     // Arrange

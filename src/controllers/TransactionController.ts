@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
-import { IMongo } from '../interfaces';
+import { IMongo, ITransactionController } from '../interfaces';
 import TYPES from '../types';
 
 @injectable()
-export default class TransactionController {
+export default class TransactionController implements ITransactionController {
   mongo: IMongo;
 
   constructor(

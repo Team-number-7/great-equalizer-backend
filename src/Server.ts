@@ -3,8 +3,10 @@ import bodyParser from 'body-parser';
 import TYPES from './types';
 import container from './inversify.config';
 import { IMongo, ITransactionController } from './interfaces';
+import HealthcheckController from './controllers/HealthcheckController';
 
 export const TRANSACTIONS_ENDPOINT = '/transactions';
+export const HEALTHCHECK_ENDPOINT = '/health';
 export const PORT = 3000;
 
 export default class Server {
@@ -20,6 +22,7 @@ export default class Server {
       .get<ITransactionController>(TYPES.ITransactionController);
     app.get(TRANSACTIONS_ENDPOINT, transactionController.getTransactions.bind(transactionController));
     app.post(TRANSACTIONS_ENDPOINT, transactionController.createTransaction.bind(transactionController));
+    app.get(HEALTHCHECK_ENDPOINT, HealthcheckController.healthcheck);
   }
 
   static listen() {

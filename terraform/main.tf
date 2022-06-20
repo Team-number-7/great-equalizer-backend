@@ -109,13 +109,13 @@ resource "aws_route_table_association" "rtba_public_1" {
 }
 
 resource "aws_route_table_association" "rtba_public_2" {
-  subnesubnet_id = aws_subnet.public_2.id
+  subnet_id = aws_subnet.public_2.id
   route_table_id = aws_route_table.routing_table_public.id  
 }
 
 resource "aws_route_table_association" "rtba_private" {
-  subnesubnet_id = aws_subnet.private.id
-  rouroute_table_id = aws_route_table.routing_table_private.id  
+  subnet_id = aws_subnet.private.id
+  route_table_id = aws_route_table.routing_table_private.id  
 }
 
 resource "aws_security_group" "load_balancer_sg" {

@@ -59,10 +59,6 @@ resource "aws_subnet" "public_2" {
   }
 }
 
-resource "aws_eip" "nat_ip" {
-  vpc = true
-}
-
 resource "aws_nat_gateway" "nat_gateway" {
   subnet_id         = aws_subnet.public_1.id
   allocation_id     = aws_eip.nat_ip.id
@@ -71,6 +67,10 @@ resource "aws_nat_gateway" "nat_gateway" {
   tags = {
     "Name" = "Nat gateway"
   }
+}
+
+resource "aws_eip" "nat_ip" {
+  vpc = true
 }
 
 resource "aws_route_table" "routing_table_public" {
@@ -196,11 +196,9 @@ resource "aws_alb" "web_lb" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.load_balancer_sg.id]
   subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
-
-  enable_deletion_protection = true
 }
 
-resource "aws_lb_target_group" "ge-web" {
+resource "aws_lb_target_group" "ge_web" {
   name        = "ge-web-lb-tg"
   port        = 3000
   protocol    = "HTTP"
@@ -219,7 +217,7 @@ resource "aws_alb_listener" "alb_listener" {
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_lb_target_group.ge-web.arn
+    target_group_arn = aws_lb_target_group.ge_web.arn
     type             = "forward"
   }
 }
@@ -254,19 +252,21 @@ resource "aws_ecs_cluster_capacity_providers" "ge_cluster" {
   }
 }
 
-resource "aws_ecs_task_definition" "mongo" {
-  family                   = "mongo"
+resource "aws_ecs_task_definition" "ge_mongo" {
+  family                   = "ge_mongo"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256
-  memory                   = 300
+  memory                   = 512
 
   container_definitions = <<TASK_DEFINITION
 [
   {
     "name": "mongo",
     "image": "mongo:5.0.8",
-    "memory": 128,
+    "cpu": 256,
+    "memory": 512,
     "essential": true,
     "portMappings": [
             {
@@ -315,19 +315,20 @@ TASK_DEFINITION
   }
 }
 
-resource "aws_ecs_task_definition" "web" {
-  family                   = "web"
+resource "aws_ecs_task_definition" "ge_web" {
+  family                   = "ge_web"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256
-  memory                   = 300
+  memory                   = 512
   container_definitions    = <<TASK_DEFINITION
 [
   {
     "name": "web",
     "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.17",
     "cpu": 256,
-    "memory": 128,
+    "memory": 512,
     "essential": true,
     "portMappings": [
             {
@@ -348,7 +349,7 @@ TASK_DEFINITION
 resource "aws_ecs_service" "mongo" {
   name             = "mongo"
   cluster          = aws_ecs_cluster.ge_cluster.id
-  task_definition  = aws_ecs_task_definition.mongo.arn
+  task_definition  = aws_ecs_task_definition.ge_mongo.arn
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "1.4.0"
@@ -363,13 +364,13 @@ resource "aws_ecs_service" "mongo" {
 resource "aws_ecs_service" "web" {
   name             = "web"
   cluster          = aws_ecs_cluster.ge_cluster.id
-  task_definition  = aws_ecs_task_definition.web.arn
+  task_definition  = aws_ecs_task_definition.ge_web.arn
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "1.4.0"
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.ge-web.arn
+    target_group_arn = aws_lb_target_group.ge_web.arn
     container_name   = "web"
     container_port   = 3000
   }
@@ -379,4 +380,29 @@ resource "aws_ecs_service" "web" {
     security_groups  = [aws_security_group.web_server_sg.id]
     assign_public_ip = true
   }
+}
+
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name               = "task_role"
+  assume_role_policy = <<EOF
+{
+  "Version": "2008-10-17",
+  "Statement": [
+      {
+          "Sid": "",
+          "Effect": "Allow",
+          "Principal": {
+              "Service": "ecs-tasks.amazonaws.com"
+          },
+          "Action": "sts:AssumeRole"
+      }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attachment" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
 }

@@ -92,14 +92,25 @@ resource "aws_route_table" "routing_table_private" {
   }
 }
 
-resource "aws_subnet" "private" {
+resource "aws_subnet" "private_1" {
   vpc_id                  = aws_vpc.team_7.id
   cidr_block              = "12.0.2.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "us-east-1a"
 
   tags = {
-    "Name" = "Subnet private"
+    "Name" = "Subnet private 1"
+  }
+}
+
+resource "aws_subnet" "private_2" {
+  vpc_id                  = aws_vpc.team_7.id
+  cidr_block              = "12.0.3.0/24"
+  map_public_ip_on_launch = false
+  availability_zone       = "us-east-1b"
+
+  tags = {
+    "Name" = "Subnet private 2"
   }
 }
 
@@ -113,18 +124,41 @@ resource "aws_route_table_association" "rtba_public_2" {
   route_table_id = aws_route_table.routing_table_public.id
 }
 
-resource "aws_route_table_association" "rtba_private" {
-  subnet_id      = aws_subnet.private.id
+resource "aws_route_table_association" "rtba_private_1" {
+  subnet_id      = aws_subnet.private_1.id
   route_table_id = aws_route_table.routing_table_private.id
 }
 
-resource "aws_security_group" "load_balancer_sg" {
+resource "aws_route_table_association" "rtba_private_2" {
+  subnet_id      = aws_subnet.private_2.id
+  route_table_id = aws_route_table.routing_table_private.id
+}
+
+resource "aws_security_group" "load_balancer_sg_web" {
   vpc_id = aws_vpc.team_7.id
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
     description = "HTTP from everywhere"
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+  }
+  egress {
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "all to everywhere"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+  }
+}
+
+resource "aws_security_group" "load_balancer_sg_mongo" {
+  vpc_id = aws_vpc.team_7.id
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "mongo from web to mongo"
+    from_port   = 27017
+    to_port     = 27017
     protocol    = "tcp"
   }
   egress {
@@ -194,7 +228,7 @@ resource "aws_alb" "web_lb" {
   name               = "web-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.load_balancer_sg.id]
+  security_groups    = [aws_security_group.load_balancer_sg_web.id]
   subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
 }
 
@@ -222,6 +256,33 @@ resource "aws_alb_listener" "alb_listener" {
   }
 }
 
+resource "aws_alb" "mongo_lb" {
+  name               = "mongo-lb"
+  internal           = true
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.load_balancer_sg_mongo.id]
+  subnets            = [aws_subnet.private_1.id, aws_subnet.private_2.id]
+}
+
+resource "aws_lb_target_group" "ge_mongo" {
+  name        = "ge-mongo-lb-tg"
+  port        = 27017
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.team_7.id
+}
+
+resource "aws_alb_listener" "mongo_listener" {
+  load_balancer_arn = aws_alb.mongo_lb.arn
+  port              = 27017
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.ge_mongo.arn
+    type             = "forward"
+  }
+}
+
 resource "aws_efs_file_system" "mongo_private_efs" {
   encrypted              = true
   availability_zone_name = "us-east-1a"
@@ -229,7 +290,7 @@ resource "aws_efs_file_system" "mongo_private_efs" {
 
 resource "aws_efs_mount_target" "mongo_efs_mt" {
   file_system_id  = aws_efs_file_system.mongo_private_efs.id
-  subnet_id       = aws_subnet.private.id
+  subnet_id       = aws_subnet.private_1.id
   security_groups = [aws_security_group.efs_private_sg.id]
 }
 
@@ -354,8 +415,14 @@ resource "aws_ecs_service" "mongo" {
   launch_type      = "FARGATE"
   platform_version = "1.4.0"
 
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ge_mongo.arn
+    container_name   = "mongo"
+    container_port   = 27017
+  }
+
   network_configuration {
-    subnets          = [aws_subnet.private.id]
+    subnets          = [aws_subnet.private_1.id]
     security_groups  = [aws_security_group.mongo_private_sg.id]
     assign_public_ip = false
   }

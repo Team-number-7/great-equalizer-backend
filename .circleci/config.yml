@@ -87,10 +87,10 @@ workflows:
           repo: great-equalizer-backend
           tag: "${CIRCLE_TAG}"
       - aws-ecs/deploy-service-update:
-          cluster-name: 'g-equalizer'
+          cluster-name: 'ge-cluster'
           service-name: 'web'
           container-image-name-updates: 'container=web,image-and-tag=491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:${CIRCLE_TAG}'
-          family: 'web'
+          family: 'ge-web'
           requires:
             - aws-ecr/build-and-push-image
           filters:

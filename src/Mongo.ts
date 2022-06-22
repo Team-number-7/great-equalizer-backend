@@ -1,10 +1,12 @@
-import { MongoClient, WithId, Document } from 'mongodb';
+import {
+  MongoClient, WithId, Document, MongoClientOptions,
+} from 'mongodb';
 import { IMongo } from './interfaces';
 import globals from './globals';
 
 const DB_HOST = globals.DB_HOST || 'localhost';
 console.log(process.env.DB_HOST, DB_HOST);
-export const MONGO_URI = `mongodb://root:example@${DB_HOST}:27017/?authMechanism=DEFAULT`;
+export const MONGO_URI = `mongodb://${DB_HOST}:27017`;
 export const DB_NAME = 'great-equalizer';
 export const TRANSACTIONS_COLLECTION = 'transactions';
 
@@ -14,7 +16,14 @@ class Mongo implements IMongo {
   public static instance: Mongo;
 
   private constructor() {
-    this.client = new MongoClient(MONGO_URI);
+    const options: MongoClientOptions = {
+      auth: {
+        password: 'example',
+        username: 'root',
+      },
+      authMechanism: 'DEFAULT',
+    };
+    this.client = new MongoClient(MONGO_URI, options);
   }
 
   public static getInstance(): IMongo {

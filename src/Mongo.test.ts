@@ -1,5 +1,5 @@
 import {
-  Document, MongoClient as MockMongoClient, ObjectId, WithId,
+  Document, MongoClient as MockMongoClient, MongoClientOptions, ObjectId, WithId,
 } from 'mongodb';
 import Mongo, { MONGO_URI, DB_NAME, TRANSACTIONS_COLLECTION } from './Mongo';
 
@@ -9,12 +9,19 @@ describe('Mongo', () => {
   test('getInstance', () => {
     // Arrange
     const expectedUri = MONGO_URI;
+    const expectedOptions: MongoClientOptions = {
+      auth: {
+        password: 'example',
+        username: 'root',
+      },
+      authMechanism: 'DEFAULT',
+    };
 
     // Act
     const actualMongo = Mongo.getInstance();
 
     // Assert
-    expect(MockMongoClient).toBeCalledWith(expectedUri);
+    expect(MockMongoClient).toBeCalledWith(expectedUri, expectedOptions);
     expect(actualMongo.client).toBeInstanceOf(MockMongoClient);
   });
 

@@ -256,26 +256,25 @@ resource "aws_alb_listener" "alb_listener" {
   }
 }
 
-resource "aws_alb" "mongo_lb" {
+resource "aws_lb" "mongo_lb" {
   name               = "mongo-lb"
   internal           = true
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.load_balancer_sg_mongo.id]
+  load_balancer_type = "network"
   subnets            = [aws_subnet.private_1.id, aws_subnet.private_2.id]
 }
 
 resource "aws_lb_target_group" "ge_mongo" {
   name        = "ge-mongo-lb-tg"
   port        = 27017
-  protocol    = "HTTP"
+  protocol    = "TCP"
   target_type = "ip"
   vpc_id      = aws_vpc.team_7.id
 }
 
-resource "aws_alb_listener" "mongo_listener" {
-  load_balancer_arn = aws_alb.mongo_lb.arn
+resource "aws_lb_listener" "mongo_listener" {
+  load_balancer_arn = aws_lb.mongo_lb.arn
   port              = 27017
-  protocol          = "HTTP"
+  protocol          = "TCP"
 
   default_action {
     target_group_arn = aws_lb_target_group.ge_mongo.arn
@@ -311,6 +310,16 @@ resource "aws_ecs_cluster_capacity_providers" "ge_cluster" {
   default_capacity_provider_strategy {
     capacity_provider = "FARGATE"
   }
+}
+
+resource "aws_cloudwatch_log_group" "cloudwatch_mongo_group" {
+  name              = var.cloudwatch_mongo_group
+  retention_in_days = 1
+}
+
+resource "aws_cloudwatch_log_group" "cloudwatch_web_group" {
+  name              = var.cloudwatch_web_group
+  retention_in_days = 1
 }
 
 resource "aws_ecs_task_definition" "ge_mongo" {
@@ -351,7 +360,15 @@ resource "aws_ecs_task_definition" "ge_mongo" {
                     "name": "MONGO_INITDB_ROOT_USERNAME",
                     "value": "root"
                 }
-            ]
+            ],
+    "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "${var.cloudwatch_mongo_group}",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "ecs"
+          }
+    }
   }
 ]
 TASK_DEFINITION
@@ -387,7 +404,7 @@ resource "aws_ecs_task_definition" "ge_web" {
 [
   {
     "name": "web",
-    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.17",
+    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.20",
     "cpu": 256,
     "memory": 512,
     "essential": true,
@@ -396,7 +413,15 @@ resource "aws_ecs_task_definition" "ge_web" {
                "containerPort": 3000,
                "protocol": "tcp"
             }
-    ]
+    ],
+    "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "${var.cloudwatch_web_group}",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "ecs"
+          }
+    }
   }
 ]
 TASK_DEFINITION
@@ -408,12 +433,12 @@ TASK_DEFINITION
 }
 
 resource "aws_ecs_service" "mongo" {
-  name             = "mongo"
-  cluster          = aws_ecs_cluster.ge_cluster.id
-  task_definition  = aws_ecs_task_definition.ge_mongo.arn
-  desired_count    = 1
-  launch_type      = "FARGATE"
-  platform_version = "1.4.0"
+  name                 = "mongo"
+  cluster              = aws_ecs_cluster.ge_cluster.id
+  task_definition      = aws_ecs_task_definition.ge_mongo.arn
+  desired_count        = 1
+  launch_type          = "FARGATE"
+  platform_version     = "1.4.0"
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ge_mongo.arn
@@ -429,12 +454,12 @@ resource "aws_ecs_service" "mongo" {
 }
 
 resource "aws_ecs_service" "web" {
-  name             = "web"
-  cluster          = aws_ecs_cluster.ge_cluster.id
-  task_definition  = aws_ecs_task_definition.ge_web.arn
-  desired_count    = 1
-  launch_type      = "FARGATE"
-  platform_version = "1.4.0"
+  name                 = "web"
+  cluster              = aws_ecs_cluster.ge_cluster.id
+  task_definition      = aws_ecs_task_definition.ge_web.arn
+  desired_count        = 1
+  launch_type          = "FARGATE"
+  platform_version     = "1.4.0"
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ge_web.arn
@@ -486,5 +511,5 @@ resource "aws_route53_record" "dev-ns" {
   name    = "mongo.great-equalizer.com"
   type    = "CNAME"
   ttl     = "60"
-  records = [aws_alb.mongo_lb.dns_name]
+  records = [aws_lb.mongo_lb.dns_name]
 }

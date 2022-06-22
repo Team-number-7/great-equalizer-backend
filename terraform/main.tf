@@ -404,7 +404,7 @@ resource "aws_ecs_task_definition" "ge_web" {
 [
   {
     "name": "web",
-    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.20",
+    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.24",
     "cpu": 256,
     "memory": 512,
     "essential": true,
@@ -433,12 +433,12 @@ TASK_DEFINITION
 }
 
 resource "aws_ecs_service" "mongo" {
-  name                 = "mongo"
-  cluster              = aws_ecs_cluster.ge_cluster.id
-  task_definition      = aws_ecs_task_definition.ge_mongo.arn
-  desired_count        = 1
-  launch_type          = "FARGATE"
-  platform_version     = "1.4.0"
+  name             = "mongo"
+  cluster          = aws_ecs_cluster.ge_cluster.id
+  task_definition  = aws_ecs_task_definition.ge_mongo.arn
+  desired_count    = 1
+  launch_type      = "FARGATE"
+  platform_version = "1.4.0"
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ge_mongo.arn
@@ -454,12 +454,12 @@ resource "aws_ecs_service" "mongo" {
 }
 
 resource "aws_ecs_service" "web" {
-  name                 = "web"
-  cluster              = aws_ecs_cluster.ge_cluster.id
-  task_definition      = aws_ecs_task_definition.ge_web.arn
-  desired_count        = 1
-  launch_type          = "FARGATE"
-  platform_version     = "1.4.0"
+  name             = "web"
+  cluster          = aws_ecs_cluster.ge_cluster.id
+  task_definition  = aws_ecs_task_definition.ge_web.arn
+  desired_count    = 1
+  launch_type      = "FARGATE"
+  platform_version = "1.4.0"
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ge_web.arn
@@ -499,7 +499,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attach
 }
 
 resource "aws_route53_zone" "great_equalizer_private" {
-  name = "great-equalizer.com"
+  name = "great-equalizer.private"
 
   vpc {
     vpc_id = aws_vpc.team_7.id
@@ -508,7 +508,7 @@ resource "aws_route53_zone" "great_equalizer_private" {
 
 resource "aws_route53_record" "dev-ns" {
   zone_id = aws_route53_zone.great_equalizer_private.zone_id
-  name    = "mongo.great-equalizer.com"
+  name    = "mongo.great-equalizer.private"
   type    = "CNAME"
   ttl     = "60"
   records = [aws_lb.mongo_lb.dns_name]

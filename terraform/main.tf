@@ -152,32 +152,14 @@ resource "aws_security_group" "load_balancer_sg_web" {
   }
 }
 
-resource "aws_security_group" "load_balancer_sg_mongo" {
-  vpc_id = aws_vpc.team_7.id
-  ingress {
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "mongo from web to mongo"
-    from_port   = 27017
-    to_port     = 27017
-    protocol    = "tcp"
-  }
-  egress {
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "all to everywhere"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-  }
-}
-
 resource "aws_security_group" "efs_private_sg" {
   vpc_id = aws_vpc.team_7.id
   ingress {
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "NFS from everywhere"
-    from_port   = 2049
-    to_port     = 2049
-    protocol    = "tcp"
+    description     = "NFS from everywhere"
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    security_groups = [aws_security_group.mongo_private_sg.id]
   }
   egress {
     cidr_blocks = ["0.0.0.0/0"]
@@ -191,7 +173,7 @@ resource "aws_security_group" "efs_private_sg" {
 resource "aws_security_group" "mongo_private_sg" {
   vpc_id = aws_vpc.team_7.id
   ingress {
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["12.0.0.0/16"]
     description = "mongo from everywhere"
     from_port   = 27017
     to_port     = 27017

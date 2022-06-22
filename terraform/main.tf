@@ -471,5 +471,20 @@ EOF
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy_attachment" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
 
+resource "aws_route53_zone" "great_equalizer_private" {
+  name = "great-equalizer.com"
+
+  vpc {
+    vpc_id = aws_vpc.team_7.id
+  }
+}
+
+resource "aws_route53_record" "dev-ns" {
+  zone_id = aws_route53_zone.great_equalizer_private.zone_id
+  name    = "mongo.great-equalizer.com"
+  type    = "CNAME"
+  ttl     = "60"
+  records = [aws_alb.mongo_lb.dns_name]
 }

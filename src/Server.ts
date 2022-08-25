@@ -1,5 +1,6 @@
 import { Application } from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import TYPES from './types';
 import container from './inversify.config';
 import { IMongo, ITransactionController } from './interfaces';
@@ -14,6 +15,7 @@ export default class Server {
     const app = container.get<Application>(TYPES.Application);
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
+    app.use(cors());
   }
 
   static configureEndpoints() {

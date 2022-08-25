@@ -1,5 +1,6 @@
 import mockBodyParser from 'body-parser';
 import mockExpress, { Application } from 'express';
+import mockCors from 'cors';
 import container, {
   expressContainerModule, mongoContainerModule,
   transactionControllerContainerModule,
@@ -14,7 +15,10 @@ jest.mock('body-parser', () => ({
   json: jest.fn(),
 }));
 
+const expectedCorsReturnValue = 'andriuha';
+
 jest.mock('./controllers/HealthcheckController');
+jest.mock('cors', () => expectedCorsReturnValue);
 
 describe('server', () => {
   beforeEach(() => {
@@ -33,8 +37,9 @@ describe('server', () => {
     );
   });
 
-  test('initMiddleware', () => {
+  test('initMiddlewares', () => {
     // Arrange
+
     const mockApp = mockExpress();
     container.unbind(TYPES.Application);
     container.bind<Application>(TYPES.Application).toConstantValue(mockApp);
@@ -44,11 +49,13 @@ describe('server', () => {
     mockApp.use = jest.fn();
 
     // Act
-    Server.initMiddleware();
+    Server.initMiddlewares();
 
     // Assert
     expect(mockApp.use).toBeCalledWith(expectedUrlencodedMiddleware);
     expect(mockApp.use).toBeCalledWith(expectedJsonMiddleware);
+    expect(mockApp.use).toBeCalledWith(expectedCorsReturnValue);
+    expect(mockCors).toBeCalled();
   });
 
   test('Configure EndPoints', () => {

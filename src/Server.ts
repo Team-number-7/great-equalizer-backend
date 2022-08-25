@@ -10,7 +10,7 @@ export const HEALTHCHECK_ENDPOINT = '/health';
 export const PORT = 3000;
 
 export default class Server {
-  static initMiddleware() {
+  static initMiddlewares() {
     const app = container.get<Application>(TYPES.Application);
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());

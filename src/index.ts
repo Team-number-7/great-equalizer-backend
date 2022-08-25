@@ -7,7 +7,7 @@ import Server from './Server';
 
 container.load(mongoContainerModule, transactionControllerContainerModule, expressContainerModule);
 
-Server.initMiddleware();
+Server.initMiddlewares();
 Server.configureEndpoints();
 console.log(process.env.DB_HOST);
 Server.listen();

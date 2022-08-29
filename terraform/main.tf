@@ -386,7 +386,7 @@ resource "aws_ecs_task_definition" "ge_web" {
 [
   {
     "name": "web",
-    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.24",
+    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.26",
     "cpu": 256,
     "memory": 512,
     "essential": true,
@@ -486,6 +486,10 @@ resource "aws_route53_zone" "great_equalizer_private" {
   vpc {
     vpc_id = aws_vpc.team_7.id
   }
+}
+
+resource "aws_route53_zone" "gequalizer_public" {
+  name = "gequalizer.com"
 }
 
 resource "aws_route53_record" "dev-ns" {

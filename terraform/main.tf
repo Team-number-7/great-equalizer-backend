@@ -231,6 +231,7 @@ resource "aws_alb_listener" "alb_listener" {
   load_balancer_arn = aws_alb.web_lb.arn
   port              = 80
   protocol          = "HTTP"
+  certificate_arn   = aws_acm_certificate_validation.gequalizer_validation.certificate_arn
 
   default_action {
     target_group_arn = aws_lb_target_group.ge_web.arn
@@ -412,6 +413,12 @@ TASK_DEFINITION
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
   }
+
+  lifecycle {
+    ignore_changes = [
+      container_definitions
+    ]
+  }
 }
 
 resource "aws_ecs_service" "mongo" {
@@ -498,4 +505,43 @@ resource "aws_route53_record" "dev-ns" {
   type    = "CNAME"
   ttl     = "60"
   records = [aws_lb.mongo_lb.dns_name]
+}
+
+resource "aws_route53_record" "cname-record" {
+  zone_id = aws_route53_zone.gequalizer_public.zone_id
+  name    = "api.gequalizer.com"
+  type    = "CNAME"
+  ttl     = "60"
+  records = [aws_alb.web_lb.dns_name]
+}
+
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "gequalizer.com"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "gequalizer_public_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = aws_route53_zone.gequalizer_public.zone_id
+}
+
+resource "aws_acm_certificate_validation" "gequalizer_validation" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.gequalizer_public_validation : record.fqdn]
 }

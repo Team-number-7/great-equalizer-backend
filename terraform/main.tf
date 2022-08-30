@@ -138,9 +138,9 @@ resource "aws_security_group" "load_balancer_sg_web" {
   vpc_id = aws_vpc.team_7.id
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTP from everywhere"
-    from_port   = 80
-    to_port     = 80
+    description = "HTTPS from everywhere"
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
   }
   egress {
@@ -227,10 +227,11 @@ resource "aws_lb_target_group" "ge_web" {
   }
 }
 
-resource "aws_alb_listener" "alb_listener" {
+resource "aws_lb_listener" "alb_listener" {
   load_balancer_arn = aws_alb.web_lb.arn
-  port              = 80
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = aws_acm_certificate_validation.gequalizer_validation.certificate_arn
 
   default_action {

@@ -101,7 +101,7 @@ resource "aws_route_table" "routing_table_private" {
   vpc_id = aws_vpc.team_7.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.nat_gateway.id
   }
 }
@@ -531,8 +531,9 @@ resource "aws_route53_record" "cname-record" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "gequalizer.com"
-  validation_method = "DNS"
+  domain_name               = "gequalizer.com"
+  validation_method         = "DNS"
+  subject_alternative_names = ["*.gequalizer.com"]
 
   lifecycle {
     create_before_destroy = true

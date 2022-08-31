@@ -7,6 +7,12 @@ terraform {
   }
 
   required_version = ">= 1.2.3"
+
+  backend "s3" {
+    bucket = "tf-backend-bucket-gequalizer"
+    region = "us-east-1"
+    key    = "terraform.tfstate"
+  }
 }
 
 provider "aws" {
@@ -18,6 +24,15 @@ provider "aws" {
       team = "Team 7"
     }
   }
+}
+
+resource "aws_s3_bucket" "backend" {
+  bucket = "tf-backend-bucket-gequalizer"
+}
+
+resource "aws_s3_bucket_acl" "backend_bucket_acl" {
+  bucket = aws_s3_bucket.backend.id
+  acl    = "private"
 }
 
 resource "aws_vpc" "team_7" {
@@ -79,7 +94,6 @@ resource "aws_route_table" "routing_table_public" {
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
-
   }
 }
 
@@ -88,7 +102,7 @@ resource "aws_route_table" "routing_table_private" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat_gateway.id
+    nat_gateway_id = aws_nat_gateway.nat_gateway.id
   }
 }
 

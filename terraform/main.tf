@@ -44,6 +44,19 @@ resource "aws_vpc" "team_7" {
   }
 }
 
+resource "aws_ecr_repository" "great-equalizer-frontend" {
+  name                 = "great-equalizer-frontend"
+  image_tag_mutability = "IMMUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "KMS"
+  }
+}
+
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.team_7.id
 
@@ -518,7 +531,7 @@ resource "aws_route53_record" "dev-ns" {
   zone_id = aws_route53_zone.great_equalizer_private.zone_id
   name    = "mongo.great-equalizer.private"
   type    = "CNAME"
-  ttl     = "60"
+  ttl     = "172800"
   records = [aws_lb.mongo_lb.dns_name]
 }
 
@@ -526,8 +539,53 @@ resource "aws_route53_record" "cname-record" {
   zone_id = aws_route53_zone.gequalizer_public.zone_id
   name    = "api.gequalizer.com"
   type    = "CNAME"
-  ttl     = "60"
+  ttl     = "172800"
   records = [aws_alb.web_lb.dns_name]
+}
+
+resource "aws_route53_record" "cname-record-www" {
+  zone_id = aws_route53_zone.gequalizer_public.zone_id
+  name    = "www.gequalizer.com"
+  type    = "CNAME"
+  ttl     = "60"
+  records = ["gequalizer.com"]
+}
+
+
+resource "aws_route53_record" "a-record" {
+  zone_id = aws_route53_zone.gequalizer_public.zone_id
+  name    = "gequalizer.com"
+  type    = "A"
+  ttl     = 60
+  records = [
+    "185.199.108.153",
+    "185.199.109.153",
+    "185.199.110.153",
+    "185.199.111.153",
+  ]
+}
+
+resource "aws_route53_record" "aaaa-record" {
+  zone_id = aws_route53_zone.gequalizer_public.zone_id
+  name    = "gequalizer.com"
+  type    = "AAAA"
+  ttl     = 60
+  records = [
+    "2606:50c0:8000::153",
+    "2606:50c0:8001::153",
+    "2606:50c0:8002::153",
+    "2606:50c0:8003::153",
+  ]
+}
+
+resource "aws_route53_record" "txt-record" {
+  zone_id = aws_route53_zone.gequalizer_public.zone_id
+  name    = "_github-pages-challenge-team-number-7.gequalizer.com"
+  type    = "TXT"
+  ttl     = 60
+  records = [
+    "b16ab3502fc9275d716482fc8dfb65",
+  ]
 }
 
 resource "aws_acm_certificate" "cert" {

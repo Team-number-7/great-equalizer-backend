@@ -1,13 +1,13 @@
 resource "aws_ecs_service" "mongo" {
   name             = "mongo"
   cluster          = aws_ecs_cluster.ge_cluster.id
-  task_definition  = aws_ecs_task_definition.ge_mongo.arn
+  task_definition  = aws_ecs_task_definition.mongo.arn
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "1.4.0"
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.ge_mongo.arn
+    target_group_arn = aws_lb_target_group.mongo.arn
     container_name   = "mongo"
     container_port   = 27017
   }
@@ -19,8 +19,8 @@ resource "aws_ecs_service" "mongo" {
   }
 }
 
-resource "aws_ecs_task_definition" "ge_mongo" {
-  family                   = "ge_mongo"
+resource "aws_ecs_task_definition" "mongo" {
+  family                   = "mongo"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
@@ -102,7 +102,7 @@ resource "aws_lb" "mongo_lb" {
   subnets            = [aws_subnet.private_1.id, aws_subnet.private_2.id]
 }
 
-resource "aws_lb_target_group" "ge_mongo" {
+resource "aws_lb_target_group" "mongo" {
   name        = "ge-mongo-lb-tg"
   port        = 27017
   protocol    = "TCP"
@@ -116,7 +116,7 @@ resource "aws_lb_listener" "mongo_listener" {
   protocol          = "TCP"
 
   default_action {
-    target_group_arn = aws_lb_target_group.ge_mongo.arn
+    target_group_arn = aws_lb_target_group.mongo.arn
     type             = "forward"
   }
 }

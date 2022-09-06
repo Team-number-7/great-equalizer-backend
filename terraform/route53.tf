@@ -18,12 +18,24 @@ resource "aws_route53_record" "dev-ns" {
   records = [aws_lb.mongo_lb.dns_name]
 }
 
-resource "aws_route53_record" "cname-record" {
+resource "aws_route53_record" "cname-record-api" {
   zone_id = aws_route53_zone.gequalizer_public.zone_id
   name    = "api.gequalizer.com"
   type    = "CNAME"
   ttl     = "86400"
   records = [aws_alb.api_lb.dns_name]
+}
+
+resource "aws_route53_record" "cname-record-frontend" {
+  zone_id = aws_route53_zone.gequalizer_public.zone_id
+  name    = "gequalizer.com"
+  type    = "A"
+
+  alias {
+    name                   = aws_alb.frontend_lb.dns_name
+    zone_id                = aws_alb.frontend_lb.zone_id
+    evaluate_target_health = true
+  }
 }
 
 resource "aws_route53_record" "cname-record-www" {
@@ -32,33 +44,6 @@ resource "aws_route53_record" "cname-record-www" {
   type    = "CNAME"
   ttl     = "60"
   records = ["gequalizer.com"]
-}
-
-
-resource "aws_route53_record" "a-record" {
-  zone_id = aws_route53_zone.gequalizer_public.zone_id
-  name    = "gequalizer.com"
-  type    = "A"
-  ttl     = 60
-  records = [
-    "185.199.108.153",
-    "185.199.109.153",
-    "185.199.110.153",
-    "185.199.111.153",
-  ]
-}
-
-resource "aws_route53_record" "aaaa-record" {
-  zone_id = aws_route53_zone.gequalizer_public.zone_id
-  name    = "gequalizer.com"
-  type    = "AAAA"
-  ttl     = 60
-  records = [
-    "2606:50c0:8000::153",
-    "2606:50c0:8001::153",
-    "2606:50c0:8002::153",
-    "2606:50c0:8003::153",
-  ]
 }
 
 resource "aws_route53_record" "txt-record" {

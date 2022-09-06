@@ -46,16 +46,6 @@ resource "aws_route53_record" "cname-record-www" {
   records = ["gequalizer.com"]
 }
 
-resource "aws_route53_record" "txt-record" {
-  zone_id = aws_route53_zone.gequalizer_public.zone_id
-  name    = "_github-pages-challenge-team-number-7.gequalizer.com"
-  type    = "TXT"
-  ttl     = 60
-  records = [
-    "b16ab3502fc9275d716482fc8dfb65",
-  ]
-}
-
 resource "aws_acm_certificate" "cert" {
   domain_name               = "gequalizer.com"
   validation_method         = "DNS"

@@ -30,7 +30,7 @@ resource "aws_ecs_task_definition" "api" {
 [
   {
     "name": "api",
-    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.26",
+    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-backend:0.0.27",
     "cpu": 256,
     "memory": 512,
     "essential": true,

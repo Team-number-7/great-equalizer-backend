@@ -30,7 +30,7 @@ resource "aws_ecs_task_definition" "frontend" {
 [
   {
     "name": "frontend",
-    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-frontend:0.0.13",
+    "image": "491762842334.dkr.ecr.us-east-1.amazonaws.com/great-equalizer-frontend:0.0.17",
     "cpu": 256,
     "memory": 512,
     "essential": true,

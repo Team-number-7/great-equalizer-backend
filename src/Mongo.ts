@@ -50,6 +50,7 @@ class Mongo implements IMongo {
     try {
       await database.createCollection(TRANSACTIONS_COLLECTION);
       await database.createCollection(USERS_COLLECTION);
+      await database.collection(USERS_COLLECTION).createIndex({ username: 1 }, { unique: true });
     } catch (error) {
       console.error(error);
     } finally {

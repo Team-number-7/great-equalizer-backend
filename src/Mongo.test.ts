@@ -72,25 +72,44 @@ describe('Mongo', () => {
     });
   });
   describe('seed', () => {
-    test('successful seed', async () => {
-      // Arrange
-      const mongo = Mongo.getInstance();
-      const expectedDbName = DB_NAME;
-      const expectedTransactionsCollectionName = TRANSACTIONS_COLLECTION;
-      const expectedUsersCollectionName = USERS_COLLECTION;
-      const mockCreateCollection = jest.fn();
-      mongo.client.db = jest
-        .fn()
-        .mockReturnValue({ createCollection: mockCreateCollection });
+    test(
+      'successful seed',
+      async () => {
+        // Arrange
+        const mongo = Mongo.getInstance();
+        const expectedDbName = DB_NAME;
+        const expectedTransactionsCollectionName = TRANSACTIONS_COLLECTION;
+        const expectedUsersCollectionName = USERS_COLLECTION;
+        const expectedField = { username: 1 };
+        const expectedValue = { unique: true };
+        const mockCreateCollection = jest.fn();
+        const mockCreateIndex = jest.fn();
+        const mockCollection = jest
+          .fn()
+          .mockReturnValue({ createIndex: mockCreateIndex });
+        mongo.client.db = jest
+          .fn()
+          .mockReturnValue({
+            createCollection: mockCreateCollection,
+            collection: mockCollection,
+          });
 
-      // Act
-      await mongo.seed();
+        // Act
+        await mongo.seed();
 
-      // Assert
-      expect(mongo.client.db).toBeCalledWith(expectedDbName);
-      expect(mockCreateCollection).toBeCalledWith(expectedTransactionsCollectionName);
-      expect(mockCreateCollection).toBeCalledWith(expectedUsersCollectionName);
-    });
+        // Assert
+        expect(mongo.client.db)
+          .toBeCalledWith(expectedDbName);
+        expect(mockCreateCollection)
+          .toBeCalledWith(expectedTransactionsCollectionName);
+        expect(mockCreateCollection)
+          .toBeCalledWith(expectedUsersCollectionName);
+        expect(mockCollection)
+          .toBeCalledWith(expectedUsersCollectionName);
+        expect(mockCreateIndex)
+          .toBeCalledWith(expectedField, expectedValue);
+      },
+    );
   });
   describe('createTransaction', () => {
     test('happy path', async () => {

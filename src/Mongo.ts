@@ -82,9 +82,9 @@ class Mongo implements IMongo {
     return null;
   }
 
-  async createUser(username: string, email: string, password: string): Promise<string | null> {
+  async createUser(username: string, password: string): Promise<string | null> {
     const collection = this.client.db(DB_NAME).collection(USERS_COLLECTION);
-    const userDocument = { username, email, password };
+    const userDocument = { username, password };
     try {
       const result = await collection.insertOne(userDocument);
       return result.insertedId.toString();

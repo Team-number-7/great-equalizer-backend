@@ -240,9 +240,8 @@ describe('Mongo', () => {
       const expectedDbName = DB_NAME;
       const expectedCollectionName = USERS_COLLECTION;
       const expectedUsername = 'John';
-      const expectedEmail = 'hui@example.com';
       const expectedPassword = '12345';
-      const expectedDocument = { username: expectedUsername, email: expectedEmail, password: expectedPassword };
+      const expectedDocument = { username: expectedUsername, password: expectedPassword };
       const expectedUserId = '1';
       const mockToString = jest
         .fn()
@@ -262,7 +261,6 @@ describe('Mongo', () => {
       // Act
       const actualUserId = await mongo.createUser(
         expectedUsername,
-        expectedEmail,
         expectedPassword,
       );
 
@@ -278,9 +276,8 @@ describe('Mongo', () => {
       const expectedDbName = DB_NAME;
       const expectedCollectionName = USERS_COLLECTION;
       const expectedUsername = 'John';
-      const expectedEmail = 'hui@example.com';
       const expectedPassword = '12345';
-      const expectedDocument = { username: expectedUsername, email: expectedEmail, password: expectedPassword };
+      const expectedDocument = { username: expectedUsername, password: expectedPassword };
       const expectedUserId = null;
       const mockInsertOne = jest.fn(async () => {
         throw new Error('InsertOne exception');
@@ -295,7 +292,6 @@ describe('Mongo', () => {
       // Act
       const actualUserId = await mongo.createUser(
         expectedUsername,
-        expectedEmail,
         expectedPassword,
       );
 

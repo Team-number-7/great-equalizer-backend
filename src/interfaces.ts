@@ -7,6 +7,7 @@ export interface IMongo {
   seed(): Promise<void>;
   createTransaction(date: Date, name: string, value: number): Promise<string | null>;
   getTransactions(): Promise<Array<WithId<Document>> | null>;
+  createUser(username: string, email: string, password: string): Promise<string | null>;
 }
 
 export interface ITransactionController {

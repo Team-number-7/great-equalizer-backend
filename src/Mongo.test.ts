@@ -233,4 +233,77 @@ describe('Mongo', () => {
       expect(actualTransactions).toEqual(expectedTransactions);
     });
   });
+  describe('createUser', () => {
+    test('happy path', async () => {
+      // Arrange
+      const mongo = Mongo.getInstance();
+      const expectedDbName = DB_NAME;
+      const expectedCollectionName = USERS_COLLECTION;
+      const expectedUsername = 'John';
+      const expectedEmail = 'hui@example.com';
+      const expectedPassword = '12345';
+      const expectedDocument = { username: expectedUsername, email: expectedEmail, password: expectedPassword };
+      const expectedUserId = '1';
+      const mockToString = jest
+        .fn()
+        .mockReturnValue(expectedUserId);
+      const mockInsertOne = jest.fn(async () => ({
+        insertedId: {
+          toString: mockToString,
+        },
+      }));
+      const mockCollection = jest
+        .fn()
+        .mockReturnValue({ insertOne: mockInsertOne });
+      mongo.client.db = jest
+        .fn()
+        .mockReturnValue({ collection: mockCollection });
+
+      // Act
+      const actualUserId = await mongo.createUser(
+        expectedUsername,
+        expectedEmail,
+        expectedPassword,
+      );
+
+      // Assert
+      expect(mongo.client.db).toBeCalledWith(expectedDbName);
+      expect(mockCollection).toBeCalledWith(expectedCollectionName);
+      expect(mockInsertOne).toBeCalledWith(expectedDocument);
+      expect(actualUserId).toEqual(expectedUserId);
+    });
+    test('insertOne throws exception', async () => {
+      // Arrange
+      const mongo = Mongo.getInstance();
+      const expectedDbName = DB_NAME;
+      const expectedCollectionName = USERS_COLLECTION;
+      const expectedUsername = 'John';
+      const expectedEmail = 'hui@example.com';
+      const expectedPassword = '12345';
+      const expectedDocument = { username: expectedUsername, email: expectedEmail, password: expectedPassword };
+      const expectedUserId = null;
+      const mockInsertOne = jest.fn(async () => {
+        throw new Error('InsertOne exception');
+      });
+      const mockCollection = jest
+        .fn()
+        .mockReturnValue({ insertOne: mockInsertOne });
+      mongo.client.db = jest
+        .fn()
+        .mockReturnValue({ collection: mockCollection });
+
+      // Act
+      const actualUserId = await mongo.createUser(
+        expectedUsername,
+        expectedEmail,
+        expectedPassword,
+      );
+
+      // Assert
+      expect(mongo.client.db).toBeCalledWith(expectedDbName);
+      expect(mockCollection).toBeCalledWith(expectedCollectionName);
+      expect(mockInsertOne).toBeCalledWith(expectedDocument);
+      expect(actualUserId).toEqual(expectedUserId);
+    });
+  });
 });

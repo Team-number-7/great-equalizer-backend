@@ -9,6 +9,7 @@ console.log(process.env.DB_HOST, DB_HOST);
 export const MONGO_URI = `mongodb://${DB_HOST}:27017`;
 export const DB_NAME = 'great-equalizer';
 export const TRANSACTIONS_COLLECTION = 'transactions';
+export const USERS_COLLECTION = 'users';
 
 class Mongo implements IMongo {
   client: MongoClient;
@@ -48,6 +49,7 @@ class Mongo implements IMongo {
     const database = this.client.db(DB_NAME);
     try {
       await database.createCollection(TRANSACTIONS_COLLECTION);
+      await database.createCollection(USERS_COLLECTION);
     } catch (error) {
       console.error(error);
     } finally {

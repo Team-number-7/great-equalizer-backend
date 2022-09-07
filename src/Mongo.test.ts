@@ -1,7 +1,9 @@
 import {
   Document, MongoClient as MockMongoClient, MongoClientOptions, ObjectId, WithId,
 } from 'mongodb';
-import Mongo, { MONGO_URI, DB_NAME, TRANSACTIONS_COLLECTION } from './Mongo';
+import Mongo, {
+  MONGO_URI, DB_NAME, TRANSACTIONS_COLLECTION, USERS_COLLECTION,
+} from './Mongo';
 
 jest.mock('mongodb');
 
@@ -70,11 +72,12 @@ describe('Mongo', () => {
     });
   });
   describe('seed', () => {
-    test('succesfull seed', async () => {
+    test('successful seed', async () => {
       // Arrange
       const mongo = Mongo.getInstance();
       const expectedDbName = DB_NAME;
-      const expectedCollectionName = TRANSACTIONS_COLLECTION;
+      const expectedTransactionsCollectionName = TRANSACTIONS_COLLECTION;
+      const expectedUsersCollectionName = USERS_COLLECTION;
       const mockCreateCollection = jest.fn();
       mongo.client.db = jest
         .fn()
@@ -85,7 +88,8 @@ describe('Mongo', () => {
 
       // Assert
       expect(mongo.client.db).toBeCalledWith(expectedDbName);
-      expect(mockCreateCollection).toBeCalledWith(expectedCollectionName);
+      expect(mockCreateCollection).toBeCalledWith(expectedTransactionsCollectionName);
+      expect(mockCreateCollection).toBeCalledWith(expectedUsersCollectionName);
     });
   });
   describe('createTransaction', () => {

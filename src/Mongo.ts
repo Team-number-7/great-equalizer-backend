@@ -94,6 +94,12 @@ class Mongo implements IMongo {
     }
     return null;
   }
+
+  async findUser(username: string): Promise<WithId<Document> | null> {
+    const collection = this.client.db(DB_NAME).collection(USERS_COLLECTION);
+    const user = collection.findOne({ username });
+    return user;
+  }
 }
 
 export default Mongo;

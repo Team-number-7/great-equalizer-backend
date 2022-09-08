@@ -321,4 +321,39 @@ describe('Mongo', () => {
       expect(actualUserId).toEqual(expectedUserId);
     });
   });
+  describe('findUser', () => {
+    test('happy path', async () => {
+      // Arrange
+      const mongo = Mongo.getInstance();
+      const expectedDbName = DB_NAME;
+      const expectedCollectionName = USERS_COLLECTION;
+      const expectedUsername = 'andryiuha';
+      const expectedPassword = '12345';
+      const expectedId = new ObjectId('8');
+      const expectedFilter = { username: expectedUsername };
+      const expectedUser: WithId<Document> = {
+        username: expectedUsername,
+        password: expectedPassword,
+        _id: expectedId,
+      };
+      const mockFindOne = jest
+        .fn()
+        .mockResolvedValue(expectedUser);
+      const mockCollection = jest
+        .fn()
+        .mockReturnValue({ findOne: mockFindOne });
+      mongo.client.db = jest
+        .fn()
+        .mockReturnValue({ collection: mockCollection });
+
+      // Act
+      const actualUser: WithId<Document> | null = await mongo.findUser(expectedUsername);
+
+      // Assert
+      expect(mongo.client.db).toBeCalledWith(expectedDbName);
+      expect(mockCollection).toBeCalledWith(expectedCollectionName);
+      expect(mockFindOne).toBeCalledWith(expectedFilter);
+      expect(actualUser).toEqual(expectedUser);
+    });
+  });
 });

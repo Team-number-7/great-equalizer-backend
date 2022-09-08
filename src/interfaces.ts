@@ -8,6 +8,7 @@ export interface IMongo {
   createTransaction(date: Date, name: string, value: number): Promise<string | null>;
   getTransactions(): Promise<Array<WithId<Document>> | null>;
   createUser(username: string, password: string): Promise<string | null>;
+  findUser(username: string): Promise<WithId<Document> | null>;
 }
 
 export interface ITransactionController {

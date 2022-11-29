@@ -355,5 +355,33 @@ describe('Mongo', () => {
       expect(mockFindOne).toBeCalledWith(expectedFilter);
       expect(actualUser).toEqual(expectedUser);
     });
+    test('findUser throws exeption', async () => {
+      // Arrange
+      const mongo = Mongo.getInstance();
+      const expectedDbName = DB_NAME;
+      const expectedCollectionName = USERS_COLLECTION;
+      const expectedUsername = 'andryiuha';
+      const expectedFilter = { username: expectedUsername };
+      const expectedError = new Error('try again');
+      const mockFindOne = jest
+        .fn()
+        .mockRejectedValue(expectedError);
+      const mockCollection = jest
+        .fn()
+        .mockReturnValue({ findOne: mockFindOne });
+      mongo.client.db = jest
+        .fn()
+        .mockReturnValue({ collection: mockCollection });
+      // Act
+      try {
+        await mongo.findUser(expectedUsername);
+      } catch (actualError) {
+        // Assert
+        expect(mongo.client.db).toBeCalledWith(expectedDbName);
+        expect(mockCollection).toBeCalledWith(expectedCollectionName);
+        expect(mockFindOne).toBeCalledWith(expectedFilter);
+        expect(actualError).toEqual(expectedError);
+      }
+    });
   });
 });
